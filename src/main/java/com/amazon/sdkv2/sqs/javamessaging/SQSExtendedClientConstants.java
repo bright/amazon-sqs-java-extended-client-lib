@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-package com.amazon.sqs.javamessaging;
+package com.amazon.sdkv2.sqs.javamessaging;
 
 
 public class SQSExtendedClientConstants {

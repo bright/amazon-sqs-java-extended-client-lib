@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-package com.amazon.sqs.javamessaging;
+package com.amazon.sdkv2.sqs.javamessaging;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import org.mockito.Mockito;
 import software.amazon.awssdk.awscore.AwsRequestOverrideConfiguration;
 import software.amazon.awssdk.core.ApiName;
 import software.amazon.awssdk.core.ResponseInputStream;
@@ -56,8 +57,8 @@ import software.amazon.payloadoffloading.PayloadS3Pointer;
 import software.amazon.payloadoffloading.ServerSideEncryptionFactory;
 import software.amazon.payloadoffloading.ServerSideEncryptionStrategy;
 
-import static com.amazon.sqs.javamessaging.AmazonSQSExtendedClient.USER_AGENT_NAME;
-import static com.amazon.sqs.javamessaging.AmazonSQSExtendedClient.USER_AGENT_VERSION;
+import static com.amazon.sdkv2.sqs.javamessaging.AmazonSQSExtendedClient.USER_AGENT_NAME;
+import static com.amazon.sdkv2.sqs.javamessaging.AmazonSQSExtendedClient.USER_AGENT_VERSION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.mockito.Matchers.any;
@@ -120,11 +121,11 @@ public class AmazonSQSExtendedClientTest {
         ExtendedClientConfiguration extendedClientConfigurationDeprecated = new ExtendedClientConfiguration()
                 .withLargePayloadSupportEnabled(mockS3, S3_BUCKET_NAME);
 
-        extendedSqsWithDefaultConfig = spy(new AmazonSQSExtendedClient(mockSqsBackend, extendedClientConfiguration));
-        extendedSqsWithCustomKMS = spy(new AmazonSQSExtendedClient(mockSqsBackend, extendedClientConfigurationWithCustomKMS));
-        extendedSqsWithDefaultKMS = spy(new AmazonSQSExtendedClient(mockSqsBackend, extendedClientConfigurationWithDefaultKMS));
-        extendedSqsWithGenericReservedAttributeName = spy(new AmazonSQSExtendedClient(mockSqsBackend, extendedClientConfigurationWithGenericReservedAttributeName));
-        extendedSqsWithDeprecatedMethods = spy(new AmazonSQSExtendedClient(mockSqsBackend, extendedClientConfigurationDeprecated));
+        extendedSqsWithDefaultConfig = Mockito.spy(new AmazonSQSExtendedClient(mockSqsBackend, extendedClientConfiguration));
+        extendedSqsWithCustomKMS = Mockito.spy(new AmazonSQSExtendedClient(mockSqsBackend, extendedClientConfigurationWithCustomKMS));
+        extendedSqsWithDefaultKMS = Mockito.spy(new AmazonSQSExtendedClient(mockSqsBackend, extendedClientConfigurationWithDefaultKMS));
+        extendedSqsWithGenericReservedAttributeName = Mockito.spy(new AmazonSQSExtendedClient(mockSqsBackend, extendedClientConfigurationWithGenericReservedAttributeName));
+        extendedSqsWithDeprecatedMethods = Mockito.spy(new AmazonSQSExtendedClient(mockSqsBackend, extendedClientConfigurationDeprecated));
     }
 
     @Test
@@ -133,7 +134,7 @@ public class AmazonSQSExtendedClientTest {
         String messageBody = generateStringWithLength(messageLength);
         ExtendedClientConfiguration extendedClientConfiguration = new ExtendedClientConfiguration()
                 .withLargePayloadSupportDisabled();
-        SqsClient sqsExtended = spy(new AmazonSQSExtendedClient(mockSqsBackend, extendedClientConfiguration));
+        SqsClient sqsExtended = Mockito.spy(new AmazonSQSExtendedClient(mockSqsBackend, extendedClientConfiguration));
 
         SendMessageRequest messageRequest = SendMessageRequest.builder()
             .queueUrl(SQS_QUEUE_URL)
@@ -161,7 +162,7 @@ public class AmazonSQSExtendedClientTest {
         String messageBody = generateStringWithLength(messageLength);
         ExtendedClientConfiguration extendedClientConfiguration = new ExtendedClientConfiguration()
                 .withLargePayloadSupportEnabled(mockS3, S3_BUCKET_NAME).withAlwaysThroughS3(true);
-        SqsClient sqsExtended = spy(new AmazonSQSExtendedClient(mock(SqsClient.class), extendedClientConfiguration));
+        SqsClient sqsExtended = Mockito.spy(new AmazonSQSExtendedClient(mock(SqsClient.class), extendedClientConfiguration));
 
         SendMessageRequest messageRequest = SendMessageRequest.builder().queueUrl(SQS_QUEUE_URL).messageBody(messageBody).build();
         sqsExtended.sendMessage(messageRequest);
@@ -176,7 +177,7 @@ public class AmazonSQSExtendedClientTest {
         ExtendedClientConfiguration extendedClientConfiguration = new ExtendedClientConfiguration()
                 .withLargePayloadSupportEnabled(mockS3, S3_BUCKET_NAME).withMessageSizeThreshold(ARBITRARY_SMALLER_THRESHOLD);
 
-        SqsClient sqsExtended = spy(new AmazonSQSExtendedClient(mock(SqsClient.class), extendedClientConfiguration));
+        SqsClient sqsExtended = Mockito.spy(new AmazonSQSExtendedClient(mock(SqsClient.class), extendedClientConfiguration));
 
         SendMessageRequest messageRequest = SendMessageRequest.builder().queueUrl(SQS_QUEUE_URL).messageBody(messageBody).build();
         sqsExtended.sendMessage(messageRequest);
@@ -187,7 +188,7 @@ public class AmazonSQSExtendedClientTest {
     public void testReceiveMessageMultipleTimesDoesNotAdditionallyAlterReceiveMessageRequestWithDeprecatedMethod() {
         ExtendedClientConfiguration extendedClientConfiguration = new ExtendedClientConfiguration()
                 .withLargePayloadSupportEnabled(mockS3, S3_BUCKET_NAME);
-        SqsClient sqsExtended = spy(new AmazonSQSExtendedClient(mockSqsBackend, extendedClientConfiguration));
+        SqsClient sqsExtended = Mockito.spy(new AmazonSQSExtendedClient(mockSqsBackend, extendedClientConfiguration));
         when(mockSqsBackend.receiveMessage(isA(ReceiveMessageRequest.class))).thenReturn(ReceiveMessageResponse.builder().build());
 
         ReceiveMessageRequest messageRequest = ReceiveMessageRequest.builder().build();
@@ -300,7 +301,7 @@ public class AmazonSQSExtendedClientTest {
         String messageBody = generateStringWithLength(MORE_THAN_SQS_SIZE_LIMIT);
         ExtendedClientConfiguration extendedClientConfiguration = new ExtendedClientConfiguration()
                 .withPayloadSupportDisabled();
-        SqsClient sqsExtended = spy(new AmazonSQSExtendedClient(mockSqsBackend, extendedClientConfiguration));
+        SqsClient sqsExtended = Mockito.spy(new AmazonSQSExtendedClient(mockSqsBackend, extendedClientConfiguration));
 
         SendMessageRequest messageRequest = SendMessageRequest.builder()
             .queueUrl(SQS_QUEUE_URL)
@@ -327,7 +328,7 @@ public class AmazonSQSExtendedClientTest {
         String messageBody = generateStringWithLength(LESS_THAN_SQS_SIZE_LIMIT);
         ExtendedClientConfiguration extendedClientConfiguration = new ExtendedClientConfiguration()
                 .withPayloadSupportEnabled(mockS3, S3_BUCKET_NAME).withAlwaysThroughS3(true);
-        SqsClient sqsExtended = spy(new AmazonSQSExtendedClient(mock(SqsClient.class), extendedClientConfiguration));
+        SqsClient sqsExtended = Mockito.spy(new AmazonSQSExtendedClient(mock(SqsClient.class), extendedClientConfiguration));
 
         SendMessageRequest messageRequest = SendMessageRequest.builder().queueUrl(SQS_QUEUE_URL).messageBody(messageBody).build();
         sqsExtended.sendMessage(messageRequest);
@@ -342,7 +343,7 @@ public class AmazonSQSExtendedClientTest {
         ExtendedClientConfiguration extendedClientConfiguration = new ExtendedClientConfiguration()
                 .withPayloadSupportEnabled(mockS3, S3_BUCKET_NAME).withPayloadSizeThreshold(ARBITRARY_SMALLER_THRESHOLD);
 
-        SqsClient sqsExtended = spy(new AmazonSQSExtendedClient(mock(SqsClient.class), extendedClientConfiguration));
+        SqsClient sqsExtended = Mockito.spy(new AmazonSQSExtendedClient(mock(SqsClient.class), extendedClientConfiguration));
 
         SendMessageRequest messageRequest = SendMessageRequest.builder().queueUrl(SQS_QUEUE_URL).messageBody(messageBody).build();
         sqsExtended.sendMessage(messageRequest);
@@ -436,7 +437,7 @@ public class AmazonSQSExtendedClientTest {
         ExtendedClientConfiguration extendedClientConfiguration = new ExtendedClientConfiguration()
                 .withPayloadSupportEnabled(mockS3, S3_BUCKET_NAME).withAlwaysThroughS3(true);
 
-        SqsClient sqsExtended = spy(new AmazonSQSExtendedClient(mockSqsBackend, extendedClientConfiguration));
+        SqsClient sqsExtended = Mockito.spy(new AmazonSQSExtendedClient(mockSqsBackend, extendedClientConfiguration));
 
         List<SendMessageBatchRequestEntry> batchEntries = new ArrayList<SendMessageBatchRequestEntry>();
         for (int i = 0; i < 10; i++) {
@@ -534,7 +535,7 @@ public class AmazonSQSExtendedClientTest {
         ExtendedClientConfiguration extendedClientConfiguration = new ExtendedClientConfiguration()
                 .withPayloadSupportEnabled(mockS3, S3_BUCKET_NAME, false);
 
-        SqsClient extendedSqs = spy(new AmazonSQSExtendedClient(mockSqsBackend, extendedClientConfiguration));
+        SqsClient extendedSqs = Mockito.spy(new AmazonSQSExtendedClient(mockSqsBackend, extendedClientConfiguration));
 
         // when
         extendedSqs.deleteMessage(deleteRequest);
@@ -556,7 +557,7 @@ public class AmazonSQSExtendedClientTest {
         DeleteMessageBatchRequest deleteBatchRequest = generateLargeDeleteBatchRequest(originalReceiptHandles);
         ExtendedClientConfiguration extendedClientConfiguration = new ExtendedClientConfiguration()
                 .withPayloadSupportEnabled(mockS3, S3_BUCKET_NAME, false);
-        SqsClient extendedSqs = spy(new AmazonSQSExtendedClient(mockSqsBackend, extendedClientConfiguration));
+        SqsClient extendedSqs = Mockito.spy(new AmazonSQSExtendedClient(mockSqsBackend, extendedClientConfiguration));
 
         // when
         extendedSqs.deleteMessageBatch(deleteBatchRequest);
@@ -601,7 +602,7 @@ public class AmazonSQSExtendedClientTest {
         String messageBody = generateStringWithLength(MORE_THAN_SQS_SIZE_LIMIT);
         ExtendedClientConfiguration extendedClientConfiguration = new ExtendedClientConfiguration()
                 .withPayloadSupportEnabled(mockS3, S3_BUCKET_NAME).withObjectCannedACL(expected);
-        SqsClient sqsExtended = spy(new AmazonSQSExtendedClient(mockSqsBackend, extendedClientConfiguration));
+        SqsClient sqsExtended = Mockito.spy(new AmazonSQSExtendedClient(mockSqsBackend, extendedClientConfiguration));
 
         SendMessageRequest messageRequest = SendMessageRequest.builder().queueUrl(SQS_QUEUE_URL).messageBody(messageBody).build();
         sqsExtended.sendMessage(messageRequest);
